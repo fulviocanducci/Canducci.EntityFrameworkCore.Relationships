@@ -353,6 +353,53 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
             await Assert.ThrowsAsync<ArgumentNullException>(() => RelationshipExtensions.SynchronizeAsync<User, Role, int>((DbSet<User>)dbSet, new User(), Array.Empty<int>(), x => x.Roles));
         }
 
+
+        [Fact]
+        public async Task Synchronize_DbSet_ShouldThrowWhenRequestedIdDoesNotExist()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = context.Users.Single(x => x.Id == seed.UserId);
+                Assert.Throws<KeyNotFoundException>(() => context.Users.Synchronize(user, new[] { int.MaxValue }, x => x.Roles));
+                Assert.Equal(new[] { seed.AdministratorId, seed.EditorId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
+        public async Task SynchronizeAsync_DbSet_ShouldThrowWhenRequestedIdDoesNotExist()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = await context.Users.SingleAsync(x => x.Id == seed.UserId);
+                await Assert.ThrowsAsync<KeyNotFoundException>(() => context.Users.SynchronizeAsync(user, new[] { int.MaxValue }, x => x.Roles));
+                Assert.Equal(new[] { seed.AdministratorId, seed.EditorId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
+        public void Synchronize_DbSet_ShouldValidateNullArguments()
+        {
+            using (AppDbContext context = new AppDbContext(CreateOptions()))
+            {
+                Assert.Throws<ArgumentNullException>(() => context.Users.Synchronize<User, Role, int>(null, Array.Empty<int>(), x => x.Roles));
+                Assert.Throws<ArgumentNullException>(() => context.Users.Synchronize<User, Role, int>(new User(), null, x => x.Roles));
+                Assert.Throws<ArgumentNullException>(() => context.Users.Synchronize<User, Role, int>(new User(), Array.Empty<int>(), null));
+            }
+        }
+
+        [Fact]
+        public async Task SynchronizeAsync_DbSet_ShouldValidateNullArguments()
+        {
+            using (AppDbContext context = new AppDbContext(CreateOptions()))
+            {
+                await Assert.ThrowsAsync<ArgumentNullException>(() => context.Users.SynchronizeAsync<User, Role, int>(null, Array.Empty<int>(), x => x.Roles));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => context.Users.SynchronizeAsync<User, Role, int>(new User(), null, x => x.Roles));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => context.Users.SynchronizeAsync<User, Role, int>(new User(), Array.Empty<int>(), null));
+            }
+        }
+
         private static DbContextOptions<AppDbContext> CreateOptions()
         {
             return new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
