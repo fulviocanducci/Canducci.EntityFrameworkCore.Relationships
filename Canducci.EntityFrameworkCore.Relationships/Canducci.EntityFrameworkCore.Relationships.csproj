@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net10.0;net11.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Canducci.EntityFrameworkCore.Relationships</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Canducci</Authors>
+        <Description>Generic many-to-many relationship synchronization for Entity Framework Core.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+    <!-- EF Core 3.1 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+    </ItemGroup>
+
+    <!-- EF Core 5 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
+    </ItemGroup>
+
+    <!-- EF Core 7 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.20" />
+    </ItemGroup>
+
+    <!-- EF Core 9 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    </ItemGroup>
+
+    <!-- EF Core 10 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    </ItemGroup>
+
+    <!-- EF Core 11 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+    </ItemGroup>
+</Project>
+
