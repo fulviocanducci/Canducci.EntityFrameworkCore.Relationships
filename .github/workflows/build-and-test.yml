@@ -1,0 +1,35 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - master
+      - docs-tests-foundation
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            11.0.x
+
+      - name: Restore
+        run: dotnet restore Canducci.EntityFrameworkCore.Relationships.slnx
+
+      - name: Build all target frameworks
+        run: dotnet build Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj --configuration Release --no-restore --framework net8.0
