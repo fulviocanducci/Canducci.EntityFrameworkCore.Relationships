@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj" />
+  <Project Path="Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj" />
 </Solution>
