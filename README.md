@@ -1,5 +1,7 @@
 # Canducci.EntityFrameworkCore.Relationships
 
+![Canducci.EntityFrameworkCore.Relationships package icon](icon.png)
+
 [![NuGet](https://img.shields.io/nuget/v/Canducci.EntityFrameworkCore.Relationships.svg)](https://www.nuget.org/packages/Canducci.EntityFrameworkCore.Relationships)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
