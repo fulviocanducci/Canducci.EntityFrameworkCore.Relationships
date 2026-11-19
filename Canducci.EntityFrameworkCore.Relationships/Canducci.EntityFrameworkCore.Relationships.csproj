@@ -12,6 +12,7 @@
         <Description>Generic many-to-many relationship synchronization for Entity Framework Core.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <!-- EF Core 3.1 -->
