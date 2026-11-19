@@ -235,6 +235,17 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
         }
 
         [Fact]
+        public async Task SynchronizeAsync_ShouldThrowWhenEntityIsNotTracked()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = new User { Id = seed.UserId, Name = "Detached" };
+                await Assert.ThrowsAsync<InvalidOperationException>(() => context.SynchronizeAsync(user, new[] { seed.GuestId }, x => x.Roles));
+            }
+        }
+
+        [Fact]
         public async Task Synchronize_ShouldThrowWhenNavigationCollectionIsNull()
         {
             SeedData seed = await CreateSeededDatabaseAsync();
