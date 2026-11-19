@@ -1,8 +1,9 @@
 # Canducci.EntityFrameworkCore.Relationships
 
-![Canducci.EntityFrameworkCore.Relationships package icon](icon.png)
+![Canducci.EntityFrameworkCore.Relationships package icon](https://raw.githubusercontent.com/fulviocanducci/Canducci.EntityFrameworkCore.Relationships/docs-tests-foundation/icon.png)
 
 [![NuGet](https://img.shields.io/nuget/v/Canducci.EntityFrameworkCore.Relationships.svg)](https://www.nuget.org/packages/Canducci.EntityFrameworkCore.Relationships)
+[![Downloads](https://img.shields.io/nuget/dt/Canducci.EntityFrameworkCore.Relationships.svg)](https://www.nuget.org/packages/Canducci.EntityFrameworkCore.Relationships)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A lightweight extension library for synchronizing entity relationship collections with Entity Framework Core.
