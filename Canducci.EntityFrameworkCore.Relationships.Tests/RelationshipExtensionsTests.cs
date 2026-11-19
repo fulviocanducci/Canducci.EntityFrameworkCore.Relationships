@@ -2,6 +2,7 @@ using Canducci.EntityFrameworkCore.Relationships.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -319,7 +320,7 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
         {
             AppDbContext context = new AppDbContext(CreateOptions());
             User user = new User();
-            Assert.Throws<ArgumentNullException>(() => RelationshipExtensions.Synchronize<User, Role, int>(null, user, Array.Empty<int>(), x => x.Roles));
+            Assert.Throws<ArgumentNullException>(() => RelationshipExtensions.Synchronize<User, Role, int>((DbContext)null, user, Array.Empty<int>(), x => x.Roles));
             Assert.Throws<ArgumentNullException>(() => context.Synchronize<User, Role, int>(null, Array.Empty<int>(), x => x.Roles));
             Assert.Throws<ArgumentNullException>(() => context.Synchronize<User, Role, int>(user, null, x => x.Roles));
             Assert.Throws<ArgumentNullException>(() => context.Synchronize<User, Role, int>(user, Array.Empty<int>(), null));
@@ -331,7 +332,7 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
         {
             AppDbContext context = new AppDbContext(CreateOptions());
             User user = new User();
-            await Assert.ThrowsAsync<ArgumentNullException>(() => RelationshipExtensions.SynchronizeAsync<User, Role, int>(null, user, Array.Empty<int>(), x => x.Roles));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => RelationshipExtensions.SynchronizeAsync<User, Role, int>((DbContext)null, user, Array.Empty<int>(), x => x.Roles));
             await Assert.ThrowsAsync<ArgumentNullException>(() => context.SynchronizeAsync<User, Role, int>(null, Array.Empty<int>(), x => x.Roles));
             await Assert.ThrowsAsync<ArgumentNullException>(() => context.SynchronizeAsync<User, Role, int>(user, null, x => x.Roles));
             await Assert.ThrowsAsync<ArgumentNullException>(() => context.SynchronizeAsync<User, Role, int>(user, Array.Empty<int>(), null));
@@ -342,14 +343,14 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
         public void Synchronize_DbSet_ShouldThrowWhenDbSetIsNull()
         {
             DbSet<User> dbSet = null;
-            Assert.Throws<ArgumentNullException>(() => RelationshipExtensions.Synchronize<User, Role, int>(dbSet, new User(), Array.Empty<int>(), x => x.Roles));
+            Assert.Throws<ArgumentNullException>(() => RelationshipExtensions.Synchronize<User, Role, int>((DbSet<User>)dbSet, new User(), Array.Empty<int>(), x => x.Roles));
         }
 
         [Fact]
         public async Task SynchronizeAsync_DbSet_ShouldThrowWhenDbSetIsNull()
         {
             DbSet<User> dbSet = null;
-            await Assert.ThrowsAsync<ArgumentNullException>(() => RelationshipExtensions.SynchronizeAsync<User, Role, int>(dbSet, new User(), Array.Empty<int>(), x => x.Roles));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => RelationshipExtensions.SynchronizeAsync<User, Role, int>((DbSet<User>)dbSet, new User(), Array.Empty<int>(), x => x.Roles));
         }
 
         private static DbContextOptions<AppDbContext> CreateOptions()
@@ -417,9 +418,13 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
         public int Id { get; set; }
         public string Name { get; set; }
         public ICollection<Role> Roles { get; set; } = new List<Role>();
+        [NotMapped]
         public ICollection<UnmappedRole> UnmappedRoles { get; set; } = new List<UnmappedRole>();
+        [NotMapped]
         public ICollection<NoKeyRole> NoKeyRoles { get; set; } = new List<NoKeyRole>();
+        [NotMapped]
         public ICollection<CompositeRole> CompositeRoles { get; set; } = new List<CompositeRole>();
+        [NotMapped]
         public UserProfile Profile { get; set; } = new UserProfile();
     }
 
