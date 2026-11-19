@@ -86,6 +86,7 @@ Synchronous:
 
 ```csharp
 var user = context.Users.Find(1);
+var roleIds = new[] { 1, 2, 3 };
 
 if (user != null)
 {
@@ -98,6 +99,7 @@ Asynchronous:
 
 ```csharp
 var user = await context.Users.FindAsync(1);
+var roleIds = new[] { 1, 2, 3 };
 
 if (user != null)
 {
@@ -114,6 +116,7 @@ Synchronous:
 
 ```csharp
 var user = context.Users.Find(1);
+var roleIds = new[] { 1, 2, 3 };
 
 if (user != null)
 {
@@ -126,6 +129,7 @@ Asynchronous:
 
 ```csharp
 var user = await context.Users.FindAsync(1);
+var roleIds = new[] { 1, 2, 3 };
 
 if (user != null)
 {
@@ -184,20 +188,27 @@ Informe os IDs que devem permanecer relacionados à entidade. Os relacionamentos
 Com a entidade carregada e rastreada pelo contexto:
 
 ```csharp
-var user = await context.Users.FindAsync(1);
+var user = context.Users.Find(1);
+var roleIds = new[] { 1, 2, 3 };
 
 if (user != null)
 {
-    await context.Users.SynchronizeAsync(user, roleIds, x => x.Roles);
-    await context.SaveChangesAsync();
+    context.Synchronize(user, roleIds, x => x.Roles);
+    context.SaveChanges();
 }
 ```
 
-Também é possível chamar a extensão diretamente no `DbContext`:
+Também é possível chamar a extensão diretamente no `DbSet`:
 
 ```csharp
-context.Synchronize(user, roleIds, x => x.Roles);
-context.SaveChanges();
+var user = context.Users.Find(1);
+var roleIds = new[] { 1, 2, 3 };
+
+if (user != null)
+{
+    context.Users.Synchronize(user, roleIds, x => x.Roles);
+    context.SaveChanges();
+}
 ```
 
 Consulte as seções em inglês acima para a matriz de compatibilidade, configuração, comportamento e limitações.
