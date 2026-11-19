@@ -1,0 +1,66 @@
+name: Build and Publish NuGet
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            10.0.x
+            11.0.x
+
+      - name: Restore
+        run: dotnet restore Canducci.EntityFrameworkCore.Relationships.slnx
+
+      - name: Build
+        run: dotnet build Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Canducci.EntityFrameworkCore.Relationships.slnx --configuration Release --no-restore
+
+      - name: Pack NuGet
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          dotnet pack Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj \
+            --configuration Release \
+            --no-restore \
+            --output ./artifacts \
+            -p:PackageVersion="$VERSION"
+
+      - name: Verify NuGet package assets
+        shell: bash
+        run: |
+          PACKAGE=$(find ./artifacts -name '*.nupkg' -print -quit)
+          test -n "$PACKAGE"
+          unzip -Z1 "$PACKAGE" | grep -Fx 'README.md'
+          unzip -Z1 "$PACKAGE" | grep -Fx 'icon.png'
+          unzip -Z1 "$PACKAGE" | grep -Fx 'LICENSE'
+
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish NuGet package
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json

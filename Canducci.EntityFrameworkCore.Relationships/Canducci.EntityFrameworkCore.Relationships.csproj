@@ -10,7 +10,7 @@
         <Version>1.0.0</Version>
         <Authors>Canducci</Authors>
         <Description>Generic many-to-many relationship synchronization for Entity Framework Core.</Description>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
         <RepositoryUrl>https://github.com/fulviocanducci/Canducci.EntityFrameworkCore.Relationships</RepositoryUrl>
@@ -48,6 +48,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="../LICENSE" Pack="true" PackagePath="\" />
         <None Include="../icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

@@ -51,5 +51,7 @@ jobs:
       - name: Verify NuGet package assets
         run: |
           PACKAGE=$(find artifacts/packages -name '*.nupkg' -print -quit)
+          test -n "$PACKAGE"
           unzip -Z1 "$PACKAGE" | grep -Fx 'README.md'
           unzip -Z1 "$PACKAGE" | grep -Fx 'icon.png'
+          unzip -Z1 "$PACKAGE" | grep -Fx 'LICENSE'
