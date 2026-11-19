@@ -13,6 +13,8 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/fulviocanducci/Canducci.EntityFrameworkCore.Relationships</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <!-- EF Core 3.1 -->
@@ -49,4 +51,3 @@
         <None Include="../icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
-
