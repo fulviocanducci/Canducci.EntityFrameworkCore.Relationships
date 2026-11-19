@@ -12,6 +12,7 @@
         <Description>Generic many-to-many relationship synchronization for Entity Framework Core.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <!-- EF Core 3.1 -->
@@ -45,6 +46,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="../icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
 

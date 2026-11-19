@@ -22,7 +22,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
+            6.0.x
             8.0.x
+            10.0.x
             11.0.x
 
       - name: Restore
@@ -31,5 +33,23 @@ jobs:
       - name: Build all target frameworks
         run: dotnet build Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj --configuration Release --no-restore
 
-      - name: Run tests
+      - name: Run tests on EF Core 7
+        run: dotnet test Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj --configuration Release --no-restore --framework net6.0
+
+      - name: Run tests on EF Core 9
         run: dotnet test Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj --configuration Release --no-restore --framework net8.0
+
+      - name: Run tests on EF Core 10
+        run: dotnet test Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj --configuration Release --no-restore --framework net10.0
+
+      - name: Run tests on EF Core 11
+        run: dotnet test Canducci.EntityFrameworkCore.Relationships.Tests/Canducci.EntityFrameworkCore.Relationships.Tests.csproj --configuration Release --no-restore --framework net11.0
+
+      - name: Pack NuGet package
+        run: dotnet pack Canducci.EntityFrameworkCore.Relationships/Canducci.EntityFrameworkCore.Relationships.csproj --configuration Release --no-restore --output artifacts/packages
+
+      - name: Verify NuGet package assets
+        run: |
+          PACKAGE=$(find artifacts/packages -name '*.nupkg' -print -quit)
+          unzip -Z1 "$PACKAGE" | grep -Fx 'README.md'
+          unzip -Z1 "$PACKAGE" | grep -Fx 'icon.png'

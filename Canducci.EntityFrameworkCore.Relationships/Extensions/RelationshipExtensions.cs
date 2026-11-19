@@ -144,6 +144,11 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
                 throw new ArgumentException("The navigation expression must be a direct property of the entity.", nameof(navigation));
             }
 
+            if (context.Entry(entity).State == EntityState.Detached)
+            {
+                throw new InvalidOperationException("The entity must be tracked by the current DbContext.");
+            }
+
             IEntityType entityType = context.Model.FindEntityType(typeof(TRelated));
 
             if (entityType == null)
