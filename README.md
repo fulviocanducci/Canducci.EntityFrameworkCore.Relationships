@@ -16,6 +16,8 @@ The library lets you provide the IDs that should be associated with an entity. E
 - Synchronous and asynchronous APIs.
 - Extension methods for both `DbContext` and `DbSet<TEntity>`.
 - Reuses related entities already tracked by the current `DbContext`.
+- Accepts an already tracked collection of related entities as an alternative to supplying IDs.
+- Validates that every supplied related entity is tracked by the same `DbContext`.
 - Loads the selected navigation collection when it has not been loaded.
 - Leaves persistence to the application: the library does not call `SaveChanges` or `SaveChangesAsync`.
 
@@ -139,6 +141,44 @@ if (user != null)
 }
 ```
 
+### Synchronizing with tracked entities
+
+Version 1.0.2 also accepts a collection of related entities. Every item supplied to this overload must already be tracked by the same `DbContext`. If at least one item is detached, the method throws an `InvalidOperationException` before changing the navigation collection.
+
+Synchronous:
+
+```csharp
+var user = context.Users.Find(1);
+var roles = context.Roles
+    .Where(x => rolesIds.Contains(x.Id))
+    .ToList();
+
+if (user != null)
+{
+    context.Synchronize(user, roles, x => x.Roles);
+    context.SaveChanges();
+}
+```
+
+Asynchronous:
+
+```csharp
+var user = await context.Users.FindAsync(1);
+var roles = await context.Roles
+    .Where(x => rolesIds.Contains(x.Id))
+    .ToListAsync();
+
+if (user != null)
+{
+    await context.SynchronizeAsync(user, roles, x => x.Roles);
+    await context.SaveChangesAsync();
+}
+```
+
+The same overloads are available through `DbSet<TEntity>`, for example `context.Users.Synchronize(user, roles, x => x.Roles)`.
+
+This overload does not attach, insert, or update the supplied related entities. It only synchronizes the relationship collection. The existing overloads that receive IDs remain available and keep their original behavior.
+
 ## Synchronization behavior
 
 Given the requested IDs:
@@ -158,6 +198,7 @@ The navigation collection is loaded when EF Core reports that it has not been lo
 - The navigation expression must refer to a direct entity property, such as `x => x.Roles`.
 - The navigation property must be typed as `ICollection<TRelated>`.
 - The related entity must be part of the current EF Core model.
+- When using the entity-collection overload, every supplied related entity must be tracked by the same `DbContext`; detached entities cause an `InvalidOperationException`.
 - The related entity must have a single-column primary key.
 - `TKey` must match the CLR type of that primary key.
 - The navigation collection must not be null.
