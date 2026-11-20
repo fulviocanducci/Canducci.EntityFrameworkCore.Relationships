@@ -253,4 +253,46 @@ if (user != null)
 }
 ```
 
+## Sincronização com entidades rastreadas
+
+**Disponível a partir da versão 1.0.2.**
+
+Além de informar os IDs, agora é possível passar uma coleção de entidades relacionadas. Todas as entidades da coleção precisam estar previamente rastreadas pelo mesmo `DbContext`. Se algum item estiver `Detached`, será lançada uma `InvalidOperationException` antes de qualquer alteração na coleção de navegação.
+
+Exemplo síncrono:
+
+```csharp
+var user = context.Users.Find(1);
+var roleIds = new[] { 1, 2, 3 };
+var roles = context.Roles
+    .Where(x => roleIds.Contains(x.Id))
+    .ToList();
+
+if (user != null)
+{
+    context.Synchronize(user, roles, x => x.Roles);
+    context.SaveChanges();
+}
+```
+
+Exemplo assíncrono:
+
+```csharp
+var user = await context.Users.FindAsync(1);
+var roleIds = new[] { 1, 2, 3 };
+var roles = await context.Roles
+    .Where(x => roleIds.Contains(x.Id))
+    .ToListAsync();
+
+if (user != null)
+{
+    await context.SynchronizeAsync(user, roles, x => x.Roles);
+    await context.SaveChangesAsync();
+}
+```
+
+A mesma sobrecarga está disponível diretamente no `DbSet<TEntity>`, por exemplo: `context.Users.Synchronize(user, roles, x => x.Roles)`.
+
+Essa sobrecarga não anexa, insere nem atualiza as entidades recebidas. Ela apenas sincroniza os relacionamentos. As sobrecargas que recebem IDs continuam disponíveis e mantêm o comportamento anterior.
+
 Consulte as seções em inglês acima para a matriz de compatibilidade, configuração, comportamento e limitações.
