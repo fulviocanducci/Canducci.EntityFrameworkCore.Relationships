@@ -12,6 +12,114 @@ namespace Canducci.EntityFrameworkCore.Relationships.Tests
     public class RelationshipExtensionsTests
     {
         [Fact]
+        public async Task Synchronize_DbContext_WithTrackedEntities_ShouldAddAndRemoveRelationships()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = context.Users.Single(x => x.Id == seed.UserId);
+                List<Role> roles = context.Roles
+                    .Where(x => x.Id == seed.AdministratorId || x.Id == seed.GuestId)
+                    .ToList();
+
+                context.Synchronize(user, roles, x => x.Roles);
+
+                Assert.Equal(new[] { seed.AdministratorId, seed.GuestId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
+        public async Task SynchronizeAsync_DbContext_WithTrackedEntities_ShouldAddAndRemoveRelationships()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = await context.Users.SingleAsync(x => x.Id == seed.UserId);
+                List<Role> roles = await context.Roles
+                    .Where(x => x.Id == seed.AdministratorId || x.Id == seed.GuestId)
+                    .ToListAsync();
+
+                await context.SynchronizeAsync(user, roles, x => x.Roles);
+
+                Assert.Equal(new[] { seed.AdministratorId, seed.GuestId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
+        public async Task Synchronize_DbSet_WithTrackedEntities_ShouldSynchronizeRelationships()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = context.Users.Single(x => x.Id == seed.UserId);
+                List<Role> roles = context.Roles.Where(x => x.Id == seed.GuestId).ToList();
+
+                context.Users.Synchronize(user, roles, x => x.Roles);
+
+                Assert.Equal(new[] { seed.GuestId }, user.Roles.Select(x => x.Id));
+            }
+        }
+
+        [Fact]
+        public async Task SynchronizeAsync_DbSet_WithTrackedEntities_ShouldSynchronizeRelationships()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = await context.Users.SingleAsync(x => x.Id == seed.UserId);
+                List<Role> roles = await context.Roles.Where(x => x.Id == seed.GuestId).ToListAsync();
+
+                await context.Users.SynchronizeAsync(user, roles, x => x.Roles);
+
+                Assert.Equal(new[] { seed.GuestId }, user.Roles.Select(x => x.Id));
+            }
+        }
+
+        [Fact]
+        public async Task Synchronize_WithTrackedEntities_ShouldThrowWhenAnyRelatedEntityIsDetachedWithoutChangingCollection()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = context.Users.Include(x => x.Roles).Single(x => x.Id == seed.UserId);
+                Role trackedRole = context.Roles.Single(x => x.Id == seed.GuestId);
+                List<Role> roles = new List<Role>
+                {
+                    trackedRole,
+                    new Role { Id = int.MaxValue, Name = "Detached" }
+                };
+
+                InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+                    () => context.Synchronize(user, roles, x => x.Roles));
+
+                Assert.Contains("All related entities must be tracked by the current DbContext", exception.Message);
+                Assert.Equal(new[] { seed.AdministratorId, seed.EditorId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
+        public async Task SynchronizeAsync_WithTrackedEntities_ShouldThrowWhenAnyRelatedEntityIsDetachedWithoutChangingCollection()
+        {
+            SeedData seed = await CreateSeededDatabaseAsync();
+            using (AppDbContext context = new AppDbContext(seed.Options))
+            {
+                User user = await context.Users.Include(x => x.Roles).SingleAsync(x => x.Id == seed.UserId);
+                Role trackedRole = await context.Roles.SingleAsync(x => x.Id == seed.GuestId);
+                List<Role> roles = new List<Role>
+                {
+                    trackedRole,
+                    new Role { Id = int.MaxValue, Name = "Detached" }
+                };
+
+                InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => context.SynchronizeAsync(user, roles, x => x.Roles));
+
+                Assert.Contains("All related entities must be tracked by the current DbContext", exception.Message);
+                Assert.Equal(new[] { seed.AdministratorId, seed.EditorId }.OrderBy(x => x), user.Roles.Select(x => x.Id).OrderBy(x => x));
+            }
+        }
+
+        [Fact]
         public async Task Synchronize_DbSet_ShouldAddAndRemoveRelationships()
         {
             SeedData seed = await CreateSeededDatabaseAsync();
