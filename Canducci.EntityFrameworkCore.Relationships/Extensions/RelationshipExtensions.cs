@@ -118,13 +118,13 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
         public static void Synchronize<TEntity, TRelated>(this DbContext context, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             IProperty primaryKeyProperty = ValidateRelatedEntities(context, entity, relatedEntities, navigation, out List<TRelated> requestedEntities);
-            SynchronizeRelatedEntities(context, entity, requestedEntities, navigation, primaryKeyProperty, false).GetAwaiter().GetResult();
+            SynchronizeRelatedEntities(context, entity, requestedEntities, navigation, primaryKeyProperty);
         }
 
         public static async Task SynchronizeAsync<TEntity, TRelated>(this DbContext context, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             IProperty primaryKeyProperty = ValidateRelatedEntities(context, entity, relatedEntities, navigation, out List<TRelated> requestedEntities);
-            await SynchronizeRelatedEntities(context, entity, requestedEntities, navigation, primaryKeyProperty, true);
+            await SynchronizeRelatedEntitiesAsync(context, entity, requestedEntities, navigation, primaryKeyProperty);
         }
 
         public static void Synchronize<TEntity, TRelated>(this DbSet<TEntity> dbSet, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
@@ -242,25 +242,36 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
             return primaryKeyProperty;
         }
 
-        private static async Task SynchronizeRelatedEntities<TEntity, TRelated>(DbContext context, TEntity entity, List<TRelated> requestedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation, IProperty primaryKeyProperty, bool asynchronous) where TEntity : class where TRelated : class
+        private static void SynchronizeRelatedEntities<TEntity, TRelated>(DbContext context, TEntity entity, List<TRelated> requestedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation, IProperty primaryKeyProperty) where TEntity : class where TRelated : class
         {
             string navigationName = ((MemberExpression)navigation.Body).Member.Name;
             CollectionEntry collection = context.Entry(entity).Collection(navigationName);
 
             if (!collection.IsLoaded)
             {
-                if (asynchronous)
-                {
-                    await collection.LoadAsync();
-                }
-                else
-                {
-                    collection.Load();
-                }
+                collection.Load();
             }
 
             ICollection<TRelated> currentEntities = navigation.Compile()(entity);
+            CompleteRelatedEntitySynchronization(context, requestedEntities, currentEntities, primaryKeyProperty);
+        }
 
+        private static async Task SynchronizeRelatedEntitiesAsync<TEntity, TRelated>(DbContext context, TEntity entity, List<TRelated> requestedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation, IProperty primaryKeyProperty) where TEntity : class where TRelated : class
+        {
+            string navigationName = ((MemberExpression)navigation.Body).Member.Name;
+            CollectionEntry collection = context.Entry(entity).Collection(navigationName);
+
+            if (!collection.IsLoaded)
+            {
+                await collection.LoadAsync();
+            }
+
+            ICollection<TRelated> currentEntities = navigation.Compile()(entity);
+            CompleteRelatedEntitySynchronization(context, requestedEntities, currentEntities, primaryKeyProperty);
+        }
+
+        private static void CompleteRelatedEntitySynchronization<TRelated>(DbContext context, List<TRelated> requestedEntities, ICollection<TRelated> currentEntities, IProperty primaryKeyProperty) where TRelated : class
+        {
             if (currentEntities == null)
             {
                 throw new InvalidOperationException("The navigation collection is null.");
@@ -279,14 +290,12 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
                 }
             }
 
-            HashSet<object> requestedKeySet = new HashSet<object>(requestedKeys);
             List<TRelated> entitiesToRemove = currentEntities
-                .Where(x => !requestedKeySet.Contains(context.Entry(x).Property(primaryKeyProperty.Name).CurrentValue))
+                .Where(x => !requestedKeys.Contains(context.Entry(x).Property(primaryKeyProperty.Name).CurrentValue))
                 .ToList();
 
-            HashSet<object> existingKeys = currentEntities
-                .Select(x => context.Entry(x).Property(primaryKeyProperty.Name).CurrentValue)
-                .ToHashSet();
+            HashSet<object> existingKeys = new HashSet<object>(
+                currentEntities.Select(x => context.Entry(x).Property(primaryKeyProperty.Name).CurrentValue));
 
             foreach (TRelated relatedEntity in distinctRequestedEntities)
             {
@@ -295,6 +304,7 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
                 if (!existingKeys.Contains(key))
                 {
                     currentEntities.Add(relatedEntity);
+                    existingKeys.Add(key);
                 }
             }
 
