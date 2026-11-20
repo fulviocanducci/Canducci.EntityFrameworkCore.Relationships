@@ -115,19 +115,19 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
             CompleteSynchronization<TRelated, TKey>(context, relatedEntities, entitiesToAdd, idsToAdd, idsToRemove, primaryKeyProperty);
         }
 
-        public static void Synchronize<TEntity, TRelated>(this DbContext context, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
+        public static void Synchronize<TEntity, TRelated>(this DbContext context, TEntity entity, ICollection<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             IProperty primaryKeyProperty = ValidateRelatedEntities(context, entity, relatedEntities, navigation, out List<TRelated> requestedEntities);
             SynchronizeRelatedEntities(context, entity, requestedEntities, navigation, primaryKeyProperty);
         }
 
-        public static async Task SynchronizeAsync<TEntity, TRelated>(this DbContext context, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
+        public static async Task SynchronizeAsync<TEntity, TRelated>(this DbContext context, TEntity entity, ICollection<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             IProperty primaryKeyProperty = ValidateRelatedEntities(context, entity, relatedEntities, navigation, out List<TRelated> requestedEntities);
             await SynchronizeRelatedEntitiesAsync(context, entity, requestedEntities, navigation, primaryKeyProperty);
         }
 
-        public static void Synchronize<TEntity, TRelated>(this DbSet<TEntity> dbSet, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
+        public static void Synchronize<TEntity, TRelated>(this DbSet<TEntity> dbSet, TEntity entity, ICollection<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             if (dbSet == null)
             {
@@ -145,7 +145,7 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
             currentDbContext.Context.Synchronize(entity, relatedEntities, navigation);
         }
 
-        public static async Task SynchronizeAsync<TEntity, TRelated>(this DbSet<TEntity> dbSet, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
+        public static async Task SynchronizeAsync<TEntity, TRelated>(this DbSet<TEntity> dbSet, TEntity entity, ICollection<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation) where TEntity : class where TRelated : class
         {
             if (dbSet == null)
             {
@@ -163,7 +163,7 @@ namespace Canducci.EntityFrameworkCore.Relationships.Extensions
             await currentDbContext.Context.SynchronizeAsync(entity, relatedEntities, navigation);
         }
 
-        private static IProperty ValidateRelatedEntities<TEntity, TRelated>(DbContext context, TEntity entity, IEnumerable<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation, out List<TRelated> requestedEntities) where TEntity : class where TRelated : class
+        private static IProperty ValidateRelatedEntities<TEntity, TRelated>(DbContext context, TEntity entity, ICollection<TRelated> relatedEntities, Expression<Func<TEntity, ICollection<TRelated>>> navigation, out List<TRelated> requestedEntities) where TEntity : class where TRelated : class
         {
             if (context == null)
             {
