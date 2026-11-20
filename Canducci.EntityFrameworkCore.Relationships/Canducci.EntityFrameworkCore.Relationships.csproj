@@ -7,7 +7,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>Canducci.EntityFrameworkCore.Relationships</PackageId>
-        <Version>1.0.0</Version>
+        <Version>1.0.2</Version>
         <Authors>Canducci</Authors>
         <Description>Generic many-to-many relationship synchronization for Entity Framework Core.</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
